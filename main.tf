@@ -11,8 +11,8 @@ resource "rediscloud_subscription" "pro" {
   name                   = var.subscription_name
   payment_method         = var.payment_method
   payment_method_id      = var.payment_method == "credit-card" ? data.rediscloud_payment_method.current[0].id : null
-  memory_storage         = "ram"
-  public_endpoint_access = false
+  memory_storage         = var.enable_flex ? "ram-and-flash" : "ram"
+  public_endpoint_access = var.enable_public_endpoint
 
   cloud_provider {
     provider = "AWS"
@@ -27,6 +27,7 @@ resource "rediscloud_subscription" "pro" {
 
   creation_plan {
     dataset_size_in_gb           = var.dataset_size_in_gb
+    ram_percentage               = var.enable_flex ? var.ram_percentage : null
     quantity                     = 1
     replication                  = var.replication
     support_oss_cluster_api      = var.support_oss_cluster_api
@@ -45,6 +46,7 @@ resource "rediscloud_subscription_database" "database" {
   subscription_id              = rediscloud_subscription.pro.id
   name                         = var.database_name
   dataset_size_in_gb           = var.dataset_size_in_gb
+  ram_percentage               = var.enable_flex ? var.ram_percentage : null
   protocol                     = "redis"
   replication                  = var.replication
   support_oss_cluster_api      = var.support_oss_cluster_api
@@ -53,7 +55,7 @@ resource "rediscloud_subscription_database" "database" {
   throughput_measurement_value = var.throughput_measurement_value
   password                     = random_password.database.result
   enable_default_user          = true
-  source_ips                   = [data.aws_vpc.consumer.cidr_block]
+  source_ips                   = concat([data.aws_vpc.consumer.cidr_block], var.additional_source_ips)
   tags                         = local.tags
 
   timeouts {

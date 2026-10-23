@@ -20,3 +20,12 @@ dataset_size_in_gb            = 25
 throughput_measurement_value  = 25000
 replication                   = false
 support_oss_cluster_api        = false
+
+# Optional Redis Flex: dataset capacity spans RAM and flash.
+# enable_flex        = true
+# dataset_size_in_gb = 1000
+# ram_percentage     = 20
+
+# Optional public endpoint, restricted to explicitly allowed client addresses.
+# enable_public_endpoint = true
+# additional_source_ips  = ["203.0.113.10/32"] # Replace with your public IP.

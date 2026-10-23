@@ -11,7 +11,7 @@ Reusable Terraform to provision a Redis Cloud Pro subscription, one Redis databa
 
 The existing VPC and subnets are not created or owned by this configuration. No compute instances or applications are provisioned.
 
-Defaults: `us-west-2`, 25 GB dataset, 25,000 operations/sec, replication disabled, persistence disabled, and OSS Cluster API disabled. Public endpoint access is disabled; database source IPs are restricted to the VPC's primary CIDR. TLS is not enabled by this configuration. These are demo defaults, not a production availability or durability configuration.
+Defaults: `us-west-2`, 25 GB dataset, 25,000 operations/sec, replication disabled, persistence disabled, and OSS Cluster API disabled. Public endpoint access is disabled by default; database source IPs default to the VPC's primary CIDR. TLS is not enabled by this configuration. These are demo defaults, not a production availability or durability configuration.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ Defaults: `us-west-2`, 25 GB dataset, 25,000 operations/sec, replication disable
 4. An existing AWS VPC in the selected region. The Redis deployment CIDR must be an unused IPv4 `/24` that does not overlap **any** CIDR associated with that VPC. This configuration uses the VPC's primary CIDR for peering and database access; secondary CIDRs are outside its scope.
 5. No conflicting routes to the Redis deployment CIDR in the VPC route tables. Review all affected route tables before applying.
 
-Clients must already have network access to the selected VPC, with security groups and network ACLs allowing the database connection and return traffic. This configuration does not change those controls. A laptop without private network connectivity cannot use the private endpoint.
+Clients must already have network access to the selected VPC, with security groups and network ACLs allowing the database connection and return traffic. This configuration does not change those controls. A laptop without private network connectivity cannot use the private endpoint. For public access, set `enable_public_endpoint = true` and add the client public IP as a `/32` in `additional_source_ips`.
 
 ## Deploy
 
@@ -73,6 +73,12 @@ After deployment, verify that the peering is active and the selected route table
 See [terraform.tfvars.example](terraform.tfvars.example) for common settings and [variables.tf](variables.tf) for all inputs. Both the Redis subscription and consumer VPC use `aws_region`.
 
 The database and AWS peering connection receive `owner=lionel_giavelli` and `skip_deletion=yes`. Routes do not support tags. The Redis subscription uses Redis-managed cloud infrastructure; this configuration does not set infrastructure `resource_tags` on that managed cloud account.
+
+## Redis Flex
+
+Set `enable_flex = true` for a RAM-and-flash subscription. `dataset_size_in_gb` is the total dataset capacity across RAM and flash; `ram_percentage` defaults to 20 and accepts 10, 20, 30, 40, or 50. For example, 1 TB total capacity uses `dataset_size_in_gb = 1000` (decimal GB). Throughput is measured in Redis operations per second, not storage IOPS.
+
+Changing `enable_flex` replaces the subscription. To create an additional Flex deployment while preserving a RAM-only deployment, use a separate checkout/state, distinct names, and a different non-overlapping Redis deployment CIDR. Do not apply that change to an existing deployment's state unless replacement is intended.
 
 ## State and credentials
 

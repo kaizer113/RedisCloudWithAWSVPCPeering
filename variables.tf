@@ -88,3 +88,37 @@ variable "aws_account_id" {
     error_message = "aws_account_id must be a 12-digit AWS account ID."
   }
 }
+
+variable "enable_flex" {
+  description = "Use Redis Flex (RAM and flash) instead of RAM-only storage. Changing this replaces the subscription."
+  type        = bool
+  default     = false
+}
+
+variable "ram_percentage" {
+  description = "Percentage of the Flex dataset held in RAM. Used only when enable_flex is true."
+  type        = number
+  default     = 20
+
+  validation {
+    condition     = contains([10, 20, 30, 40, 50], var.ram_percentage)
+    error_message = "ram_percentage must be 10, 20, 30, 40, or 50."
+  }
+}
+
+variable "enable_public_endpoint" {
+  description = "Enable the subscription public endpoint; database access remains restricted by source_ips."
+  type        = bool
+  default     = false
+}
+
+variable "additional_source_ips" {
+  description = "Additional IPv4 CIDRs allowed to connect, such as a laptop public /32."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for cidr in var.additional_source_ips : can(cidrnetmask(cidr))])
+    error_message = "additional_source_ips must contain valid IPv4 CIDRs."
+  }
+}

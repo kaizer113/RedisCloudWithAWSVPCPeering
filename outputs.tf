@@ -26,3 +26,7 @@ output "consumer_vpc_id" {
 output "route_table_ids" {
   value = data.aws_route_tables.consumer.ids
 }
+
+output "public_endpoint" {
+  value = rediscloud_subscription_database.database.public_endpoint
+}
