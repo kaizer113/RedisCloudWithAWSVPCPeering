@@ -1,0 +1,22 @@
+# Replace both placeholders with your existing AWS account and VPC.
+aws_account_id = "123456789012"
+aws_vpc_id     = "vpc-REPLACE_ME"
+aws_region     = "us-west-2"
+
+# Optional: use a named AWS profile (including an SSO profile).
+# aws_profile = "my-profile"
+
+subscription_name = "redis-peering-pro-us-west-2"
+database_name     = "redis-peering-db"
+
+# Must not overlap any CIDR associated with your VPC.
+redis_deployment_cidr = "192.168.0.0/24"
+
+# Choose the billing method supported by your Redis Cloud account.
+# "credit-card", "marketplace", or null for eligible direct contracts.
+payment_method = "credit-card"
+
+dataset_size_in_gb            = 25
+throughput_measurement_value  = 25000
+replication                   = false
+support_oss_cluster_api        = false
